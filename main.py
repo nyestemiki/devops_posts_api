@@ -2,7 +2,7 @@ from flask import Flask, json, request
 import logging
 import time
 
-logging.basicConfig(filename='./logs/debug.log', level=logging.DEBUG)
+logging.basicConfig(filename='./posts_api/logs/debug.log', level=logging.DEBUG)
 
 # id, title, description, userId, date
 posts = []
@@ -80,4 +80,4 @@ def get_post_by_id(id):
     return None
 
 if __name__ == '__main__':
-    api.run()
+    api.run(host='0.0.0.0')
