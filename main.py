@@ -1,5 +1,8 @@
 from flask import Flask, json, request
+import logging
 import time
+
+logging.basicConfig(filename='./logs/debug.log', level=logging.DEBUG)
 
 # id, title, description, userId, date
 posts = []
