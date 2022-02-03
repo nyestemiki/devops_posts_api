@@ -2,7 +2,7 @@ from flask import json
 
 
 class Post:
-    def __init__(self, id, title, description, userId, date) -> None:
+    def __init__(self, id, title, description, userId, date):
         self.id = id
         self.title = title
         self.description = description
