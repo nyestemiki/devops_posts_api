@@ -1,70 +1,69 @@
 from flask import Flask, json, request
-import logging
-import time
-
-logging.basicConfig(filename='./posts_api/logs/debug.log', level=logging.DEBUG)
+from log import Log, log
+from helpers import get_post_by_id
+from helpers import get_post_from_request, update_post_from_request
+from request import Request
 
 # id, title, description, userId, date
 posts = []
 
 api = Flask(__name__)
 
+
 @api.route('/', methods=['GET'])
 def get():
-  return json.dumps("All good")
+    log(Log(Request.GET, "/"))
+
+    return json.dumps("All good")
+
 
 @api.route('/posts', methods=['GET'])
 def get_posts():
-  return json.dumps(posts)
+    log(Log(Request.GET, "/posts"))
+
+    return json.dumps(posts)
+
 
 @api.route('/post/<id>', methods=['GET'])
 def get_post(id):
-  return json.dumps(get_post_by_id(id))
+    log(Log(Request.GET, "/post/" + id))
+
+    post = get_post_by_id(posts, id)
+    if post is None:
+        return json.dumps('Not found')
+
+    return post.dump()
+
 
 @api.route('/post', methods=['POST'])
 def post_post():
-    request_data = request.get_json()
+    log(Log(Request.POST, "/post"))
 
-    post = {}
-    post["id"] = str(len(posts) + 1)
-    post["title"] = request_data.get('title')
-    post["description"] = request_data.get('description')
-    post["userId"] = request_data.get('userId')
-    post["date"] = time.time()
-
+    post = get_post_from_request(request.get_json(), str(len(posts) + 1))
     posts.append(post)
 
-    return json.dumps(post)
+    return post.dump()
+
 
 @api.route('/post/<id>', methods=['PUT'])
 def put_post(id):
-    post = get_post_by_id(id)
+    log(Log(Request.PUT, "/post/" + id))
+
+    post = get_post_by_id(posts, id)
 
     if post is None:
         return json.dumps("Not found")
 
-    request_data = request.get_json()
+    update_post_from_request(request.get_json(), post)
 
-    title = request_data.get('title')
-    if title:
-        post["title"] = title
-
-    description = request_data.get('description')
-    if description:
-        post["description"] = description
-
-    userId = request_data.get('userId')    
-    if userId:
-        post["userId"] = userId
-
-    post["date"] = time.time()
-
-    return json.dumps(post)
+    return post.dump()
 
 
 @api.route('/post/<id>', methods=['DELETE'])
 def delete_post(id):
-    post = get_post_by_id(id)
+    log(Log(Request.DELETE, "/post/id" + id))
+
+    post = get_post_by_id(posts, id)
 
     if post is None:
         return json.dumps("Not found")
@@ -72,12 +71,6 @@ def delete_post(id):
     posts.remove(post)
     return json.dumps("Deleted")
 
-def get_post_by_id(id):
-    for post in posts:
-        if post["id"] == id:
-            return post
-    
-    return None
 
 if __name__ == '__main__':
     api.run(host='0.0.0.0')
