@@ -1,7 +1,6 @@
 from flask import Flask, json, request
 from log import Log, log
-from helpers import get_post_by_id
-from helpers import get_post_from_request, update_post_from_request
+from helpers import get_post_from_request, update_post_from_request, dump_posts, get_post_by_id
 from request import Request
 
 # id, title, description, userId, date
@@ -21,7 +20,7 @@ def get():
 def get_posts():
     log(Log(Request.GET, "/posts"))
 
-    return json.dumps(posts)
+    return dump_posts(posts)
 
 
 @api.route('/post/<id>', methods=['GET'])
